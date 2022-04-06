@@ -71,7 +71,7 @@ async function connectToVideoRoom(userName, roomName){
             name: roomName,
             tracks:[]
         });
-
+        alert("Now you are connected to room "  + roomName);
         videoRoom.participants.forEach(participant => {
             console.log(`Participant "${participant.identity}" is connected to the Room`);
             addParticipantInfo(participant);
