@@ -48,8 +48,8 @@ $(document).ready(function(){
 
 async function publishVideoTrack(videoRoom){
     try{
-        const stream = await navigator.mediaDevices.getDisplayMedia({video: {frameRate: 15, width: 640, height: 480}});
-        const screenTrack = new Video.LocalVideoTrack(stream.getTracks()[0], {name:'myscreenshare'});
+        const stream = await navigator.mediaDevices.getDisplayMedia({video: true});
+        const screenTrack = new Video.LocalVideoTrack(stream.getVideoTracks()[0], {name:'myscreenshare'});
     
         let screenShareTrack = await videoRoom.localParticipant.publishTrack(screenTrack);
         return screenShareTrack;
