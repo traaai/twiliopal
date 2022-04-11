@@ -52,6 +52,11 @@ async function publishVideoTrack(videoRoom){
         const screenTrack = new Video.LocalVideoTrack(stream.getVideoTracks()[0], {name:'myscreenshare'});
     
         let screenShareTrack = await videoRoom.localParticipant.publishTrack(screenTrack);
+        
+        screenShareTrack.track.once('stopped', () => {
+            videoRoom.localParticipant.unpublishTrack(screenShareTrack.track);
+          });
+        
         return screenShareTrack;
     }
     catch(err){
