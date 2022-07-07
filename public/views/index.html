@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="https://sdk.twilio.com/js/video/releases/2.20.1/twilio-video.min.js"></script>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script type="text/javascript" src="index.js"></script>
+        <link rel="stylesheet" href="../static/index.css">
+    </head>
+    <body>
+      <div class="bg">
+        <img id="logo" src="../Philippineairlineslogo.png" width="28%"/>
+  <div class="centerContent">
+            <!-- <h2  style="text-align:center;margin-top:3px;padding-top:20px">Welcome to my Screen Share demo</h2> -->
+         <b>   <p id="myDIV" style="color: red; text-align: center;margin-top: 1px;">
+      
+            </p></b>
+           
+            <div  *ngIf="!styledis" id="errormsg" class="my-notify-error"></div>
+            
+            <!-- <h4>Do not share any confidential details such as Personal, Payment related details etc</h4> -->
+            <div class="centerButtons" id="hidetext">
+                <div>
+              <p class="instructions">Name:</p>
+              <input class="advancedSearchTextbox" id="userName" type="text" placeholder="Name" />
+            </div>
+            <br />
+            <div>
+              <p class="instructions">Room Name:</p>
+              <input  class="advancedSearchTextbox" id="roomName" type="text" placeholder="Room name"disabled/>
+            </div>
+            </div>
+            
+            <div id="room-controls" class="centred">
+             
+              <button class="btn" id="joinRoom">Join Room</button>
+              <button class="btn" id="leaveRoom" >Leave Room</button>
+              <button   class="btn" id="turnOnScreenShare" >Share screen</button>
+              <!-- <button   onclick="document.getElementById('id01').style.display='block'"  class="btn" id="fullscreen" >View full screen</button> -->
+              <button class="btn" id="turnOffScreenShare">Unshare screen</button>
+            </div>
+
+
+<!-- 
+            <div class="w3-container">
+                
+              
+              
+                <div id="id01"  style="display:none;">
+                  <div class="w3-modal-content">
+                    <div class="w3-container"> -->
+                      <!-- <span onclick="document.getElementById('id01').style.display='none'" class="w3-button w3-display-topright">&times;</span> -->
+                      <div id="remote-media-div"   class="centerButtons">
+                     
+                    <!-- </div>
+                  </div>
+                </div>
+              </div> -->
+
+
+
+
+           
+          </div>
+          </div>
+          </div>
+        <!-- <div class="centerContent">
+            <h3>Welcome to my Screen Share demo</h3>
+            <div class="centerButtons">
+                UserName: <input id="userName" type="text"/>
+                Room Name: <input id="roomName" type="text"/>
+                <button id="joinRoom" class="myButton">Join Room</button>
+                <button id="leaveRoom" class="myButton">Leave Room</button>
+            </div>
+            <div>
+                <div class="centerButtons">
+                    <button id="turnOnScreenShare" class="myButton">Start Screen Sharing</button> 
+                    <button id="turnOffScreenShare" class="myButton">Stop Screen Sharing</button> 
+                </div>
+            </div>
+            <div id="remote-media-div" class="centerButtons">
+
+
+            </div>
+        </div> -->
+        
+    </body>
+    <script>
+// const urlParams = new URLSearchParams(window.location.search);
+// const myParam = urlParams.get('myParam');
+
+let params = (new URLSearchParams(window.location.search)).get("roomname")
+    console.log(params, "parmmmmm");
+    let params1 = (new URLSearchParams(window.location.search)).get("username")
+    console.log(params1, "parmmmmm");
+    let tasksid = (new URLSearchParams(window.location.search)).get("tasksid")
+    console.log(tasksid, "parmmmmm");
+    let cxname= (new URLSearchParams(window.location.search)).get("cxname")
+    console.log(cxname, "parmmmmm");
+//    let client = new Client()
+// console.log(document.getElementById('tasksid').value,"clienttttt")
+// client.taskrouter.workspaces('WS0125d10f9b864ef449f5eea82c1e8028')
+//                  .tasks()
+//                  .update({
+                    
+//                     attributes: JSON.stringify({
+//                       type: 'other'
+//                     })
+//                   })
+//                  .then(task => console.log(task.taskQueueFriendlyName));  
+    </script>
+</html>

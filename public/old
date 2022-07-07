@@ -1,0 +1,248 @@
+const urlToken = "/token";
+const Video = Twilio.Video;
+// and set the environment variables. See http://twil.io/secure
+
+$(document).ready(function(){
+   
+    document.getElementById('roomName').value=params;    
+    document.getElementById('userName').value=params1;
+    console.log("dsdsd",    document.getElementById('userName').value)
+
+
+    let videoRoom = null;
+    let screenShareTrack = null;
+    document.getElementById('turnOnScreenShare').style.display = 'none';
+    document.getElementById('turnOffScreenShare').style.display =
+      'none';
+    $("#joinRoom").click(function(){
+        let userName = $("#userName").val();
+        let roomName = $("#roomName").val();
+    
+        if(userName && roomName && !videoRoom){
+            RecordParticipantsOnConnect=false;
+  if(params1==null){
+            document.getElementById('turnOnScreenShare').style.display = 'inline';
+            document.getElementById('leaveRoom').style.display = 'inline';
+  }
+              document.getElementById('joinRoom').style.display ='none';
+            connectToVideoRoom(userName, roomName)
+                        .then(vr => videoRoom=vr);
+        }
+    });
+
+    $("#leaveRoom").click(function(){
+
+
+        //  ............................old code......................................................
+        // if(videoRoom){
+        //     document.getElementById('myDIV').style.display =
+        //     'none';
+        //     document.getElementById('joinRoom').style.display ='inline';
+        //     document.getElementById('turnOnScreenShare').style.display = 'none';
+        //     document.getElementById('turnOffScreenShare').style.display = 'none';
+        //     document.getElementById('leaveRoom').style.display = 'none';
+        //     videoRoom.disconnect();
+        //     alert("Now you are disconnected")
+        //     videoRoom = null;
+        // }
+    //   ........................................................
+        if(videoRoom && screenShareTrack){
+            document.getElementById('myDIV').style.display =
+            'none';
+            document.getElementById('joinRoom').style.display ='inline';
+            document.getElementById('turnOnScreenShare').style.display = 'none';
+            document.getElementById('turnOffScreenShare').style.display = 'none';
+            document.getElementById('leaveRoom').style.display = 'none';
+            screenShareTrack.track.stop();
+            screenShareTrack.unpublish();
+            screenShareTrack = null;
+        }
+        else{
+            document.getElementById('myDIV').style.display =
+            'none';
+            document.getElementById('joinRoom').style.display ='inline';
+            document.getElementById('turnOnScreenShare').style.display = 'none';
+            document.getElementById('turnOffScreenShare').style.display = 'none';
+            document.getElementById('leaveRoom').style.display = 'none';
+            videoRoom.disconnect();
+            alert("Now you are disconnected")
+            videoRoom = null;
+        }
+        
+    })
+
+    $("#turnOnScreenShare").click(function(){
+        if(videoRoom){
+            document.getElementById('turnOnScreenShare').style.display = 'none';
+            document.getElementById('turnOffScreenShare').style.display =
+              'inline';
+            publishVideoTrack(videoRoom)
+                .then(track =>screenShareTrack = track );
+        }
+        else
+        {
+            alert("please start a video room")
+        }
+    });
+
+    $("#turnOffScreenShare").click(function(){
+        if(videoRoom && screenShareTrack){
+            document.getElementById('turnOnScreenShare').style.display = 'inline';
+            document.getElementById('turnOffScreenShare').style.display =
+              'none';
+            screenShareTrack.track.stop();
+            screenShareTrack.unpublish();
+            screenShareTrack = null;
+        }
+    });
+
+});
+
+async function publishVideoTrack(videoRoom){
+    try{
+        const stream = await navigator.mediaDevices.getDisplayMedia({video: true});
+        const screenTrack = new Video.LocalVideoTrack(stream.getVideoTracks()[0], {name:'myscreenshare'});
+    
+        let screenShareTrack = await videoRoom.localParticipant.publishTrack(screenTrack);
+        screenShareTrack.track.once('stopped', () => {
+            videoRoom.localParticipant.unpublishTrack(screenShareTrack.track);
+            document.getElementById('turnOnScreenShare').style.display = 'inline';
+            document.getElementById('turnOffScreenShare').style.display =
+              'none';
+          });
+        
+        return screenShareTrack;
+    }
+    catch(err){
+        console.log(err);
+    }
+    
+
+}
+
+async function connectToVideoRoom(userName, roomName){
+    const url = `${urlToken}?identity=${encodeURIComponent(userName)}&roomname=${encodeURIComponent(roomName)}`
+  
+    console.log(url,"urlllll");
+    
+    try{
+        const response = await axios.get(url);
+        const token = response.data.token;
+console.log(token,"tokennnnnnnnnnn")
+        const videoRoom = await Video.connect(token,{
+            name: roomName,
+            tracks:[]
+        });
+        alert("Now you are connected to room "  + roomName);
+        //checking if username exists or not in query params to display disclaimer
+      if(params1==null){
+        const para = document.createElement("p");
+        para.innerHTML = "Do not share any confidential details such as Personal, Payment related details etc";
+        
+        // Append to another element:
+        document.getElementById("myDIV").appendChild(para);
+         }
+        videoRoom.participants.forEach(participant => {
+            console.log(`Participant "${participant.identity}" is connected to the Room`);
+            addParticipantInfo(participant);
+          });
+
+        videoRoom.on('participantConnected', function(participant) {
+            console.log(participant.identity + ' has connected');
+            addParticipantInfo(participant);
+        });
+
+        videoRoom.once('participantDisconnected', participant => {
+            console.log(`Participant "${participant.identity}" has disconnected from the Room`);
+            removeParticipant(participant);
+        });
+
+        videoRoom.once('disconnected', function() {
+            videoRoom.participants.forEach(participant => {
+
+                removeParticipant(participant);
+              });
+            console.log('You left the Room:', videoRoom.name);
+            
+        });
+
+        return videoRoom;
+    }catch(err){
+        console.error(err);
+    }
+
+}
+
+async function addParticipantInfo(participant){
+    const divParticipant = document.createElement("div");
+    divParticipant.setAttribute("id", participant.identity);
+
+    const h6 = document.createElement("h6");
+    const textNode = document.createTextNode(participant.identity + " is in the room");
+    h6.appendChild(textNode);
+
+    divParticipant.appendChild(h6);
+    document.getElementById('remote-media-div').appendChild(divParticipant);
+    document.getElementById("remote-media-div").style.color = "white";
+    document.getElementById("remote-media-div").style.height = "60px";
+    document.getElementById("remote-media-div").style.borderRadius = "5%";
+     document.getElementById("remote-media-div").style.textAlign = "center";
+     document.getElementById("remote-media-div").style.background = " linear-gradient(to right, rgb(0, 0, 96) 0%, rgb(0, 0, 32) 100%)";
+    participant.tracks.forEach(publication => {
+        if (publication.isSubscribed) {
+          const track = publication.track;
+
+          divParticipant.appendChild(track.attach());
+
+        }
+      });
+    
+      participant.on('trackSubscribed', track => {
+
+        const divParticipantVideo = document.createElement("div");
+        divParticipantVideo.setAttribute("id", participant.identity+"_video");
+        divParticipantVideo.appendChild(track.attach())
+       
+        document.getElementById(participant.identity).appendChild(divParticipantVideo);
+
+      });
+
+    participant.on('trackUnpublished',publication =>{
+        document.getElementById(participant.identity+"_video").remove();
+
+    })
+
+}
+
+async function removeParticipant(participant){
+    let element = document.getElementById(participant.identity);
+    element.remove();
+}
+
+/**
+ * Draw a circle on the <canvas> element.
+ * @param {HTMLCanvasElement} canvas
+ * @param {string} color
+ * @param {number} x
+ * @param {number} y
+ * @returns {void}
+ */
+ function drawCircle(canvas, color, x, y) {
+    const context = canvas.getContext('2d');
+    context.beginPath();
+    context.arc(
+      x,
+      y,
+      10,
+      0,
+      2 * Math.PI,
+      false);
+    context.fillStyle = color;
+    context.fill();
+    context.strokeStyle = '#000000';
+    context.stroke();
+  }
+  
+  // Go!
+  main().catch(console.error);
+  
